@@ -1,0 +1,13 @@
+{
+    "files.encoding": "gbk",
+    "files.autoGuessEncoding": false,
+    "files.associations": {
+        "*.h": "c"
+    },
+    "C_Cpp.default.intelliSenseMode": "gcc-arm",
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": false
+    }
+}

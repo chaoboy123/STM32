@@ -1,0 +1,30 @@
+# ===== Keil MDK 编译输出（每次编译都会变，不该进版本库）=====
+Objects/
+Listings/
+*.o
+*.d
+*.crf
+*.dep
+*.lnp
+*.axf
+*.hex
+*.bin
+*.elf
+*.map
+*.lst
+*.sct
+*.iex
+*.htm
+*.build_log.htm
+
+# ===== Keil 本机界面状态（每台机器/每个人都不一样）=====
+*.uvguix.*
+*.uvguix
+
+# ===== 备份与临时文件 =====
+*.bak
+*.orig
+*~
+*.tmp
+Thumbs.db
+desktop.ini
