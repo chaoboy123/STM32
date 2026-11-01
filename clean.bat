@@ -1,51 +1,75 @@
 @echo off
 chcp 936 >nul
-title Keil 编译产物清理（安全版 v2）
-setlocal
+title Keil 工程一键清理
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
-echo ==========================================
-echo   Keil 编译产物清理脚本（安全版）
-echo   工作目录: %CD%
-echo ==========================================
+echo ============================================
+echo    Keil 工程一键清理
+echo    目录: %CD%
+echo ============================================
 echo.
-echo 将删除每个工程目录下的:
-echo   1. Objects 和 Listings 文件夹
-echo   2. 中间文件: *.o *.d *.crf *.dep *.lnp *.axf
-echo      *.hex *.bin *.map *.lst *.htm *.iex *.uvguix.*
+echo 将清理: Objects / Listings 目录，编译中间文件与日志
+echo         *.o *.d *.crf *.dep *.lnp *.axf *.hex *.bin
+echo         *.map *.lst *.htm *.iex *.uvguix.* *.log
+echo 不会动: 源代码、头文件、工程文件、.git 仓库
 echo.
-echo 不会动: 源代码、工程文件、.git 仓库
-echo.
-set /p CONF=确认清理? (Y/N):
-if /i not "%CONF%"=="Y" echo 已取消。& pause & exit /b
 
-set N=0
+tasklist /nh /fi "imagename eq UV4.exe" 2>nul | findstr /i /c:"UV4.exe" >nul
+if not errorlevel 1 (
+    echo [注意] Keil uVision 正在运行，被占用的文件可能删不掉
+    echo        建议先关闭 Keil 再运行本脚本
+    echo.
+)
 
-rem 逐个进入工程目录内部清理（pushd 方式，规避 for /r 变量路径枚举失效的 cmd 缺陷）
-for /d %%P in ("%CD%\*") do (
-    if /i not "%%~nxP"==".git" (
-        pushd "%%P"
-        for /d /r %%D in (Objects Listings) do (
-            if exist "%%D" (
-                rd /s /q "%%D"
+set /a N=0
+set /a DIRN=0
+set /a FILEN=0
+
+echo 正在清理，请稍候...
+
+rem ---------- 1. 清理 Objects / Listings 目录 ----------
+rem dir /s /b /ad 递归列出所有同名目录
+rem 逐个判断路径里是否含 .git\ ，含则跳过，避免删掉 Git 仓库的库对象
+for /f "delims=" %%D in ('dir /s /b /ad "%CD%\Objects" "%CD%\Listings" 2^>nul') do (
+    set "P=%%D"
+    if "!P:\.git\=!"=="!P!" (
+        if exist "%%D" (
+            rd /s /q "%%D" 2>nul
+            if not exist "%%D" (
                 set /a N+=1
-                echo [目录] %%D
+                set /a DIRN+=1
             )
         )
-        for /r %%F in (*.o *.d *.crf *.dep *.lnp *.axf *.hex *.bin *.map *.lst *.htm *.iex *.uvguix.*) do (
-            if exist "%%F" (
-                del /q "%%F"
+    )
+)
+
+rem ---------- 2. 清理编译中间文件与日志 ----------
+rem /a-d 只列文件，避免误匹配同名文件夹；同样跳过 .git 下的东西
+for /f "delims=" %%F in ('dir /s /b /a-d "%CD%\*.o" "%CD%\*.d" "%CD%\*.crf" "%CD%\*.dep" "%CD%\*.lnp" "%CD%\*.axf" "%CD%\*.hex" "%CD%\*.bin" "%CD%\*.map" "%CD%\*.lst" "%CD%\*.htm" "%CD%\*.iex" "%CD%\*.uvguix.*" "%CD%\*.log" 2^>nul') do (
+    set "P=%%F"
+    if "!P:\.git\=!"=="!P!" (
+        if exist "%%F" (
+            del /q "%%F" 2>nul
+            if not exist "%%F" (
                 set /a N+=1
-                echo [文件] %%F
+                set /a FILEN+=1
             )
         )
-        popd
     )
 )
 
 echo.
-echo ==========================================
-echo   完成，共删除 %N% 项。
-echo   下次编译 Keil 会自动重建，属正常现象。
-echo ==========================================
-pause
+echo ============================================
+if %N%==0 (
+    echo    很干净，没有需要清理的东西
+) else (
+    echo    完成，共清理 %N% 项
+    echo    目录 %DIRN% 个，文件 %FILEN% 个
+)
+echo    下次编译时 Keil 会自动重建这些文件
+echo ============================================
+echo.
+echo 3 秒后自动关闭，按任意键立即关闭
+timeout /t 3 >nul 2>nul
+exit /b
