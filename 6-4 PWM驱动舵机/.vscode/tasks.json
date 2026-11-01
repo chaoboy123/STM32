@@ -1,0 +1,90 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Keil: Build (增量编译)",
+            "type": "shell",
+            "command": "C:/Keil_v5/UV4/UV4.exe",
+            "args": [
+                "-b",
+                "${workspaceFolder}/Project.uvprojx",
+                "-j0",
+                "-o",
+                "${workspaceFolder}/build.log"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Keil: Rebuild (全部重编译)",
+            "type": "shell",
+            "command": "C:/Keil_v5/UV4/UV4.exe",
+            "args": [
+                "-r",
+                "${workspaceFolder}/Project.uvprojx",
+                "-j0",
+                "-o",
+                "${workspaceFolder}/build.log"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Keil: Flash (编译并烧录)",
+            "type": "shell",
+            "command": "C:/Keil_v5/UV4/UV4.exe",
+            "args": [
+                "-f",
+                "${workspaceFolder}/Project.uvprojx",
+                "-j0",
+                "-o",
+                "${workspaceFolder}/flash.log"
+            ],
+            "dependsOn": "Keil: Build (增量编译)",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Keil: 添加当前文件到工程",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "C:/Users/liu/Desktop/STM32/tools/add_to_keil.py",
+                "${workspaceFolder}",
+                "${file}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Keil: 同步全部源文件到工程",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/sync_keil.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
